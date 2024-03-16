@@ -53,7 +53,7 @@ class Stanley(object):
     def read_waypoints(self):
 
         dirname  = os.path.dirname(__file__)
-        filename = os.path.join(dirname, '../ss_wps.csv')
+        filename = os.path.join(dirname, 'ss_wps.csv')
 
         with open(filename) as f:
             path_points = [tuple(line) for line in csv.reader(f)]
