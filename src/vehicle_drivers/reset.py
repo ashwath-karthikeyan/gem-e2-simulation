@@ -9,6 +9,14 @@ import rospy
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
 from gazebo_msgs.srv import GetModelState
+from ackermann_msgs.msg import AckermannDrive
+
+ackermann_msg = AckermannDrive()
+ackermann_msg.steering_angle_velocity = 0.0
+ackermann_msg.acceleration            = 0.0
+ackermann_msg.jerk                    = 0.0
+ackermann_msg.speed                   = 0.0 
+ackermann_msg.steering_angle          = 0.0
 
 def getModelState():
     rospy.wait_for_service('/gazebo/get_model_state')
@@ -53,6 +61,8 @@ def set_position(x = 0,y = 0, yaw = 0):
     new_state.pose.orientation.w = q[3]
     new_state.twist = curr_state.twist
     setModelState(new_state)
+    ackermann_pub = rospy.Publisher('/ackermann_cmd', AckermannDrive, queue_size=1)
+    ackermann_pub.publish(ackermann_msg)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = 'Set the x, y position of the vehicle')

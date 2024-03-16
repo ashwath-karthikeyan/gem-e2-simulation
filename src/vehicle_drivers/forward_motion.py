@@ -71,55 +71,19 @@ class PurePursuit(object):
         
         while not rospy.is_shutdown():
 
-            # # get current position and orientation in the world frame
-            # curr_x, curr_y, curr_yaw = self.get_gem_pose()
-
-            # self.path_points_x = np.array(self.path_points_x)
-            # self.path_points_y = np.array(self.path_points_y)
-
-            # # finding the distance of each way point from the current position
-            # for i in range(len(self.path_points_x)):
-            #     self.dist_arr[i] = self.dist((self.path_points_x[i], self.path_points_y[i]), (curr_x, curr_y))
-
-            # # finding those points which are less than the look ahead distance (will be behind and ahead of the vehicle)
-            # goal_arr = np.where( (self.dist_arr < self.look_ahead + 0.3) & (self.dist_arr > self.look_ahead - 0.3) )[0]
-
-            # # finding the goal point which is the last in the set of points less than the lookahead distance
-            # for idx in goal_arr:
-            #     v1 = [self.path_points_x[idx]-curr_x , self.path_points_y[idx]-curr_y]
-            #     v2 = [np.cos(curr_yaw), np.sin(curr_yaw)]
-            #     temp_angle = self.find_angle(v1,v2)
-            #     if abs(temp_angle) < np.pi/2:
-            #         self.goal = idx
-            #         break
-
-            # # finding the distance between the goal point and the vehicle
-            # # true look-ahead distance between a waypoint and current position
-            # L = self.dist_arr[self.goal]
-
-            # # transforming the goal point into the vehicle coordinate frame 
-            # gvcx = self.path_points_x[self.goal] - curr_x
-            # gvcy = self.path_points_y[self.goal] - curr_y
-            # goal_x_veh_coord = gvcx*np.cos(curr_yaw) + gvcy*np.sin(curr_yaw)
-            # goal_y_veh_coord = gvcy*np.cos(curr_yaw) - gvcx*np.sin(curr_yaw)
-
-            # # find the curvature and the angle 
-            # alpha   = self.path_points_yaw[self.goal] - (curr_yaw)
-            # k       = 0.285
-            # angle_i = math.atan((2 * k * self.wheelbase * math.sin(alpha)) / L) 
-            # angle   = angle_i*2
-            # angle   = round(np.clip(angle, -0.61, 0.61), 3)
-
-            # ct_error = round(np.sin(alpha) * L, 3)
-
-            # print("Crosstrack Error: " + str(ct_error))
-
-            # implement constant pure pursuit controller
-            self.ackermann_msg.speed          = 2.8
-            self.ackermann_msg.steering_angle = 1
+            self.ackermann_msg.speed          = 4
+            self.ackermann_msg.steering_angle = 0
             self.ackermann_pub.publish(self.ackermann_msg)
 
         self.rate.sleep()
+
+    def stop_pp(self):
+        while not rospy.is_shutdown():
+
+            self.ackermann_msg.speed          = 0
+            self.ackermann_msg.steering_angle = 0
+            self.ackermann_pub.publish(self.ackermann_msg)
+
     
 def pure_pursuit():
 
@@ -129,6 +93,8 @@ def pure_pursuit():
     try:
         pp.start_pp()
     except rospy.ROSInterruptException:
+        pp.stop_pp()
+        print("Stopping car!")
         pass
 
 if __name__ == '__main__':
