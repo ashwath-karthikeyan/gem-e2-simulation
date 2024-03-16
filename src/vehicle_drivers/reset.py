@@ -66,13 +66,13 @@ def set_position(x=0, y=0, yaw=0):
 if __name__ == "__main__":
 
     #run "python3 reset.py --config track" for track, and "...parking" for parking
-    
     parser = argparse.ArgumentParser(description='Set the vehicle position based on predefined configurations.')
 
     configurations = {
-        'track': {'x': -5, 'y': -21, 'yaw': pi},
+        'track': {'x': -5, 'y': -21.25, 'yaw': pi},
         'parking': {'x': -40, 'y': 23, 'yaw': 0},
         # Add more configurations here
+        'testing': {'x': -31, 'y': -22, 'yaw':2*pi}
     }
 
     parser.add_argument('--config', type=str, help='Configuration name.', choices=configurations.keys())
