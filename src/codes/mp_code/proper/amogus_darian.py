@@ -27,6 +27,9 @@ class ImageProcessor:
         self.uniform_midpoint_distance = None
         self.bridge = CvBridge()
 
+        self.midpoint_x = None
+        self.midpoint_y = None
+
     def process_image(self, image):
         
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -201,6 +204,16 @@ class ImageProcessor:
             # Drawing the line in green on the original image
             cv2.line(image, (x1_middle, y1_middle), (x2_middle, y2_middle), (0, 255, 0), 3)
 
+
+        # Calculate the midpoint of the middle curve
+        if len(x_values_middle) > 0 and len(y_range_middle) > 0:
+            midpoint_index = len(x_values_middle) // 2
+            self.midpoint_x = int(x_values_middle[midpoint_index])
+            self.midpoint_y = int(y_range_middle[midpoint_index])
+        else:
+            self.midpoint_x = None
+            self.midpoint_y = None
+
         # cv2.imshow("color", colored_image)
         # cv2.waitKey(1)
         return image
@@ -232,23 +245,21 @@ class ImageProcessor:
 
 
     def depth_callback(self, msg):
-
-        # x_mid = (x_top_left + x_bottom_right) / 2
-        # y_mid = (y_top_left + y_bottom_right) / 2
-
         try:
-            # Convert the ROS depth image message to a NumPy array
-            depth_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width))
+            if self.midpoint_x is not None and self.midpoint_y is not None:
+                # Convert the ROS depth image message to a NumPy array
+                depth_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width))
+                
+                # depth value at the midpoint of the parking box in the image
+                midpoint_depth = depth_array[self.midpoint_y, self.midpoint_x]
 
-            x_mid, y_mid = ...  # values based on your detection algorithm
-
-            # depth value at the midpoint of the parking box in the image
-            midpoint_depth = depth_array[y_mid, x_mid]
-
-            # Print the depth value (distance in meters) to the console
-            rospy.loginfo("Distance to parking box midpoint: {} meters".format(midpoint_depth))
+                # Print the depth value (m)
+                rospy.loginfo("Distance to parking box midpoint: {} meters".format(midpoint_depth))
+            else:
+                rospy.loginfo("Parking box midpoint not detected.")
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {}".format(e))
+
 
     def generate_waypoints(self, contour_points_left, contour_points_right):
         if contour_points_left is None and contour_points_right is None:
