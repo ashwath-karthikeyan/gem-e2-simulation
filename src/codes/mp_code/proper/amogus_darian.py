@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+
+# References: 
+# https://github.com/stereolabs/zed-sdk/tree/master/tutorials/tutorial%203%20-%20depth%20sensing/python
+# https://www.stereolabs.com/docs/tutorials/depth-sensing
+
+
 import rospy
 from sensor_msgs.msg import Image, CameraInfo
 import cv2
